@@ -1,40 +1,60 @@
 from ortools.sat.python import cp_model
 
-# Create a model
-model = cp_model.CpModel()
 
-# Define the variables
-grid = []
-for i in range(9):
-    row = []
+def sudoku_solver(puzzle):
+    # Create a model
+    model = cp_model.CpModel()
+
+    # Define the variables
+    grid = []
+    for i in range(9):
+        row = []
+        for j in range(9):
+            var = model.NewIntVar(1, 9, f"cell_{i}_{j}")
+            row.append(var)
+        grid.append(row)
+
+    # Define the constraints
+    # Each cell must have a unique value
+    for i in range(9):
+        for j in range(9):
+            model.AddAllDifferent([grid[i][j]])
+
+    # Each row must have unique values
+    for i in range(9):
+        model.AddAllDifferent(grid[i])
+
+    # Each column must have unique values
     for j in range(9):
-        var = model.NewIntVar(1, 9, f"cell_{i}_{j}")
-        row.append(var)
-    grid.append(row)
+        column = [grid[i][j] for i in range(9)]
+        model.AddAllDifferent(column)
 
-# Define the constraints
-# Each cell must have a unique value
-for i in range(9):
-    for j in range(9):
-        model.AddAllDifferent([grid[i][j]])
+    # Each 3x3 block must have unique values
+    for i in range(3):
+        for j in range(3):
+            block = []
+            for k in range(3):
+                for l in range(3):
+                    block.append(grid[i * 3 + k][j * 3 + l])
+            model.AddAllDifferent(block)
 
-# Each row must have unique values
-for i in range(9):
-    model.AddAllDifferent(grid[i])
+    # Add the given values to the model
+    for i in range(9):
+        for j in range(9):
+            if puzzle[i][j] != 0:
+                model.Add(grid[i][j] == puzzle[i][j])
 
-# Each column must have unique values
-for j in range(9):
-    column = [grid[i][j] for i in range(9)]
-    model.AddAllDifferent(column)
+    # Solve the puzzle
+    solver = cp_model.CpSolver()
+    solver.Solve(model)
 
-# Each 3x3 block must have unique values
-for i in range(3):
-    for j in range(3):
-        block = []
-        for k in range(3):
-            for l in range(3):
-                block.append(grid[i * 3 + k][j * 3 + l])
-        model.AddAllDifferent(block)
+    # Print the solution
+    for i in range(9):
+        for j in range(9):
+            puzzle[i][j] = solver.Value(grid[i][j])
+
+    return puzzle
+
 
 # Define the puzzle to be solved
 puzzle = [
@@ -49,18 +69,4 @@ puzzle = [
     [0, 0, 9, 0, 0, 0, 0, 0, 0],
 ]
 
-# Add the given values to the model
-for i in range(9):
-    for j in range(9):
-        if puzzle[i][j] != 0:
-            model.Add(grid[i][j] == puzzle[i][j])
-
-# Solve the puzzle
-solver = cp_model.CpSolver()
-solver.Solve(model)
-
-# Print the solution
-for i in range(9):
-    for j in range(9):
-        print(f"{solver.Value(grid[i][j]):2d}", end=" ")
-    print()
+print(sudoku_solver(puzzle))

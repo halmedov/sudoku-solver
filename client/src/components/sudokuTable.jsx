@@ -1,22 +1,35 @@
 import React, { useState } from 'react';
 import { Container, Table, Button, Row, Col } from 'react-bootstrap';
+import axios from 'axios';
+
 
 function SudokuSolver() {
   const [grid, setGrid] = useState(Array(9).fill().map(() => Array(9).fill(0)));
   const [solved, setSolved] = useState(false);
 
   const solveSudoku = async () => {
-    const response = await fetch('/api/solveSudoku', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ grid })
-    });
-    const solution = await response.json();
-    setGrid(solution);
-    setSolved(true);
+    console.log("Clicked");
+    const api_url = 'http://127.0.0.1:5000/api/solveSudoku'
+    try {
+      const response = await axios({
+        method: "POST",
+        url: api_url,
+        headers: {
+          "Content-Type": "application/json"
+        },
+        data: {
+          grid: grid
+        }
+      });
+      const solution = response.data;
+      console.log(solution);
+      setGrid(solution);
+      setSolved(true);
+    } catch (error) {
+      console.error(error);
+    }
   };
+  
 
   const handleCellValueChange = (event, row, col) => {
     const value = event.target.value ? parseInt(event.target.value) : 0;
@@ -30,7 +43,7 @@ function SudokuSolver() {
     <Container fluid className="bg-secondary">
       <h1>Welcome To Sudoku Solver</h1>
       <Row className="justify-content-center mt-5">
-        <Col md={4} xs={4}>
+        <Col md={6} xs={4}>
           <Table bordered responsive border={"dark"}>
             <tbody>
               {grid.map((row, rowIndex) => (
