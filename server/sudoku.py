@@ -54,19 +54,3 @@ def sudoku_solver(puzzle):
             puzzle[i][j] = solver.Value(grid[i][j])
 
     return puzzle
-
-
-# Define the puzzle to be solved
-puzzle = [
-    [7, 2, 0, 8, 0, 0, 0, 0, 0],
-    [0, 0, 0, 6, 0, 0, 5, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 5, 0, 0, 3, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 9, 0, 7, 0],
-    [0, 0, 6, 0, 0, 0, 0, 8, 0],
-    [0, 0, 0, 0, 5, 0, 3, 0, 9],
-    [8, 0, 0, 4, 0, 0, 0, 0, 0],
-    [0, 0, 9, 0, 0, 0, 0, 0, 0],
-]
-
-print(sudoku_solver(puzzle))
